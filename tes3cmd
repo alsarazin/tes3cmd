@@ -6699,8 +6699,15 @@ sub read_quick_parse {
     my $id;
     if ($NAMED_TYPE{$rectype}) { # This rectype uses the NAME subrec as its ID
 	$id = (unpack("Z*", ($subrecs{NAME}[0])));
+		if ($rectype eq 'DIAL') { # save DIALOGUE ID for future INFO ids
+			my $dial_name = $id;
+			my $type = unpack("C", $subrecs{DATA}[0]);
+			my $type_name = $DIAL_TYPE{$type};
+			$CURRENT_DIAL = "$type_name:$dial_name";
+		}
     } elsif ($rectype eq "INFO") {
-	$id = (unpack("Z*", $subrecs{INAM}[0]));
+	my $info_id = unpack("Z*", $subrecs{INAM}[0]);
+    $id = "$CURRENT_DIAL|$info_id";
     } elsif ($rectype eq "CELL") {
 	my $name = unpack("Z*", ($subrecs{NAME}[0]));
 	my $data = $subrecs{DATA}[0];
@@ -9056,11 +9063,10 @@ sub cmd_clean {
 	    }
 	}
 	if ($opt_clean_dups) {
-	    #my $id = $plug_tr->decode()->id;
 		my $decoded = $plug_tr->decode();
 		my $id =
 			(($rectype eq 'INFO') and (defined $CURRENT_DIAL))
-				? $CURRENT_DIAL . "|" . $decoded->id
+				? lc($CURRENT_DIAL . "|" . $decoded->id)
 				: $decoded->id;
 	    foreach my $master (keys %{my_master}) {
 		next unless (defined $MASTER_ID->{$master}->{$id}->{$rectype});
