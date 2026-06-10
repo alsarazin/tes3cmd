@@ -9059,10 +9059,9 @@ sub cmd_clean {
 	    #my $id = $plug_tr->decode()->id;
 		my $decoded = $plug_tr->decode();
 		my $id =
-			($rectype eq 'INFO')
-				? $CURRENT_DIAL . "|" . $decoded->{id}
-				: $decoded->{id};
-		
+			(($rectype eq 'INFO') and (defined $CURRENT_DIAL))
+				? $CURRENT_DIAL . "|" . $decoded->id
+				: $decoded->id;
 	    foreach my $master (keys %{my_master}) {
 		next unless (defined $MASTER_ID->{$master}->{$id}->{$rectype});
 		my $mastref = $MASTER_ID->{$master}->{$id}->{$rectype};
