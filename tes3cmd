@@ -8655,7 +8655,7 @@ sub cmd_modify {
     my $modify_subrecords = ($opt_sub_match or $opt_sub_no_match);
     if (my $replacer = ($opt_modify_replace || $opt_modify_replacefirst)) {
 	# make the replacer case-insensitive
-	$replacer = qq{(?i)$replacer};
+	$replacer .= 'i';
 	if (not $opt_modify_replacefirst) {
 	    # make the replacer global
 	    $replacer .= 'g';
@@ -9056,7 +9056,13 @@ sub cmd_clean {
 	    }
 	}
 	if ($opt_clean_dups) {
-	    my $id = $plug_tr->decode()->id;
+	    #my $id = $plug_tr->decode()->id;
+		my $decoded = $plug_tr->decode();
+		my $id =
+			($rectype eq 'INFO')
+				? $CURRENT_DIAL . "|" . $decoded->{id}
+				: $decoded->{id};
+		
 	    foreach my $master (keys %{my_master}) {
 		next unless (defined $MASTER_ID->{$master}->{$id}->{$rectype});
 		my $mastref = $MASTER_ID->{$master}->{$id}->{$rectype};
